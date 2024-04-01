@@ -30,24 +30,19 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: "975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository"
-          ECR_REPOSITORY: "my-repository"
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-1
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
         with:
-          task-definition: ${{ env.ECS_TD }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
+         access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         registry: ${{ secrets.REGISTRY }}
+         repo: actapp
+         region: ${{ env.AWS_REGION }}
+         tags: latest,${{ github.run_number }}
+         daemon_off: false
+         dockerfile: ./Dockerfile
+         context: ./
+
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
