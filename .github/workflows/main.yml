@@ -13,8 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Navigate to directory containing Dockerfile
-        run: cd node-terraform/app
+      #- name: Navigate to directory containing Dockerfile
+       # run: cd node-terraform/app
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
