@@ -4,10 +4,10 @@ on:
     branches:
       - master
 env:
-  AWS_REGION: us-east-2
-  ECS_CLUSTER: app_cluster
-  CONTAINER_NAME: app
-  ECS_SERVICE: app_service
+  AWS_REGION: us-east-1
+  ECS_CLUSTER: my_cluster
+  CONTAINER_NAME1: public-container
+  ECS_SERVICE1: public-ecs-service
   ECS_TD: .github/workflows/td.json
 
 jobs:
@@ -17,14 +17,14 @@ jobs:
     environment: dev
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ""
-          aws-secret-access-key: ""
-          aws-region: ""
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION}}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -33,8 +33,8 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
-          ECR_REGISTRY: "***.dkr.ecr.us-east-2.amazonaws.com"
-          ECR_REPOSITORY: "app_repo"
+          ECR_REGISTRY: "975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository"
+          ECR_REPOSITORY: "my-repository"
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -46,13 +46,13 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.ECS_TD }}
-          container-name: ${{ env.CONTAINER_NAME }}
+          container-name: ${{ env.CONTAINER_NAME1 }}
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def-1.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
+          service: ${{ env.ECS_SERVICE1 }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
