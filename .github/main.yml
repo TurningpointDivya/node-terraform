@@ -21,12 +21,13 @@ jobs:
           aws-region: us-east-1
 
       - name: Login to Amazon ECR
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 975049941899.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-repository:latest .
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/my-repository:latest
+        run: 
+          docker build -t my-repository .
+          docker tag my-repository:latest 975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository:latest
+          docker push 975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository:latest
 
       - name: Deploy to ECS Fargate
         run: |
