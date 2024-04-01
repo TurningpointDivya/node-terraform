@@ -39,9 +39,9 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-repository:latest .
-          docker tag my-repository:latest 975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository:latest
-          docker push 975049941899.dkr.ecr.us-east-1.amazonaws.com/my-repository:latest
+          docker buildx create --use
+          docker buildx inspect --bootstrap
+          docker buildx build --platform linux/arm64 -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/my-repository:latest --push .
 
       - name: Deploy to ECS Fargate
         run: |
